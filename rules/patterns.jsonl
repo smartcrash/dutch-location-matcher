@@ -9544,3 +9544,4 @@
 {"label":"LOC","pattern":[{"TEXT":"Terschelling"},{"TEXT":"Light"},{"TEXT":"Vessel"}]}
 {"label":"LOC","pattern":[{"TEXT":"Old"},{"TEXT":"City"},{"TEXT":"Hall"}]}
 {"label":"ORG","pattern":[{"TEXT":"Rabobank"}]}
+{"label":"LOC","pattern":[{"TEXT":"Amersfoort"},{"TEXT":"Centraal"}]}
