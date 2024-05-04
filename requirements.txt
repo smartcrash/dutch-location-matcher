@@ -1,3 +1,2 @@
-spacy[apple]
-numpy
+spacy
 
