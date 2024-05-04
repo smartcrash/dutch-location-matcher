@@ -1,6 +1,7 @@
 import spacy
 from spacy.tokens import Span
 from spacy.matcher import Matcher
+from pathlib import Path
 import re
 
 
@@ -26,7 +27,7 @@ def LocationMatcher():
 
     nlp = spacy.load('nl_core_news_lg', exclude=exclude)
     ruler = nlp.add_pipe('entity_ruler', before='ner')
-    ruler.from_disk('./rules')
+    ruler.from_disk((Path(__file__).parent / "./rules").resolve())
 
     patterns = [
         ([

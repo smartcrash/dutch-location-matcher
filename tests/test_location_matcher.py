@@ -1,5 +1,5 @@
 import pytest
-from location_matcher import LocationMatcher
+from nl_matcher import LocationMatcher
 
 location_matcher = LocationMatcher()
 
