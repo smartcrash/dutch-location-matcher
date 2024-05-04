@@ -162,4 +162,5 @@ def test_location_matches(sent, expected):
     span = location_matcher(sent)
 
     assert span is not None
-    assert span.text == expected
+    assert len(span) > 0
+    assert span[0].text == expected

@@ -75,7 +75,7 @@ def LocationMatcher():
     for index, (pattern, greedy) in enumerate(patterns):
         matcher.add(f"pattern_{index}", [pattern], greedy=greedy)
 
-    def location_matcher(text: str) -> Span | None:
+    def location_matcher(text: str) -> list[Span]:
         doc = nlp(text)
         matches = matcher(doc, as_spans=True)
         matches.sort(key=lambda span: span.label_)
@@ -85,6 +85,6 @@ def LocationMatcher():
         matches = filter(lambda span: 'Comité' not in span.text, matches)
         matches = list(matches)
 
-        return matches[0] if len(matches) > 0 else None
+        return matches
 
     return location_matcher
