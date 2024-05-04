@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nl-matcher"
-version = "0.0.1"
+version = "0.0.3"
 authors = [
   { name="Diego Da'Silva", email="smartcrashomg@gmail.com" },
 ]
@@ -15,6 +15,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+  "spacy",
 ]
 
 [project.urls]
