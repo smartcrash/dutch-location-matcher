@@ -30,60 +30,98 @@ def LocationMatcher():
     ruler.from_disk((Path(__file__).parent / "./rules").resolve())
 
     patterns = [
-        ([
+        [
             {"TEXT": "oversteekplaats"},
             {"TEXT": "tussen"},
             {"TEXT": "de"},
             {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC", "ORG"]}, "OP": "+"},
-            {"POS": {"IN": ["ADP", "DET", "NOUN", "CCONJ"]},
-                "TEXT": {"NOT_IN": ["naar"]}, "OP": "+"},
+            {
+                "POS": {"IN": ["ADP", "DET", "NOUN", "CCONJ"]},
+                "TEXT": {"NOT_IN": ["naar"]},
+                "OP": "+"
+            },
             {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC"]}}
-        ], 'LONGEST'),
-        ([
-            {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC", "ORG"]}, "OP": "+"},
-            {"TEXT": "in"},
-            {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC"]}}
-        ], 'LONGEST'),
-        ([
-            {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC", "ORG"]}, "OP": "+"},
-            {"TEXT": "wijk"},
-            {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC"]}}
-        ], 'LONGEST'),
-        ([
+        ],
+
+        # ---
+
+        [
             {"TEXT": "in"},
             {"TEXT": "de"},
             {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC", "ORG"]}, "OP": "+"},
-        ], 'LONGEST'),
-        ([
-            {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC", "ORG"]}, "OP": "+"},
-            {"POS": {"IN": ["ADP", "DET", "NOUN"]},
-                "TEXT": {"NOT_IN": ["naar"]}, "OP": "+"},
+        ],
+
+        # --
+
+        # Example: 'Barn in de Meadow' in Benschop
+        [
+            {"IS_PUNCT": True},
+            {
+                "POS": {"IN": ["PROPN", "ADP", "DET"]},
+                "OP": "+"
+            },
+            {"IS_PUNCT": True},
+            {
+                "POS": {"IN": ["ADP", "DET", "NOUN"]},
+                "TEXT": {"NOT_IN": ["naar"]},
+                "OP": "+"
+            },
             {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC"]}}
-        ], 'LONGEST'),
-        ([
+        ],
+
+
+        # Examples: 'Fluitekamp in Hoogland', 'Maarssense wijk Zwanenkamp'
+        [
+            {
+                "ENT_TYPE": {"IN": ["GPE", "FAC", "LOC", "ORG"]},
+                "OP": "+"
+            },
+            {
+                "POS": {"IN": ["ADP", "DET", "NOUN"]},
+                "TEXT": {"NOT_IN": ["naar"]},
+                "OP": "+"
+            },
+            {"ENT_TYPE": {"IN": ["GPE", "FAC", "LOC"]}}
+        ],
+
+        # ---
+
+        # Pattern that starts with person names and ends with a location.
+        # Example: 'Marco Pololaan in de Utrechtse wijk Kanaleneiland'
+        [
             {"ENT_TYPE": "PERSON", "OP": "+"},
             {"POS": {"IN": ['ADP', "DET"]},  "OP": "+"},
             {"ENT_TYPE": "NORP"},
             {"POS": "NOUN"},
             {"POS": "PROPN"},
-        ], 'LONGEST'),
-        ([{"ENT_TYPE": "LOC", "OP": "+"}], 'FIRST'),
-        ([{"ENT_TYPE": "GPE", "OP": "+"}], 'FIRST'),
+        ],
+
+        # ---
+
+        # At last catch simple locations.
+        [{
+            "ENT_TYPE": {"IN": ["LOC", "GPE"]},
+            "LOWER": {"NOT_IN": ["zondagavond"]},
+            "OP": "+"
+        }],
     ]
 
     matcher = Matcher(nlp.vocab)
 
-    for index, (pattern, greedy) in enumerate(patterns):
-        matcher.add(f"pattern_{index}", [pattern], greedy=greedy)
+    for index, pattern in enumerate(patterns):
+        matcher.add(f"pattern_{index}", [pattern], greedy="LONGEST")
 
     def location_matcher(text: str) -> list[Span]:
+        # Remove newlines and extra spaces.
+        # This is done to improve the performance of the matcher by
+        # elminiating the effect of newlines and extra spaces on the
+        # text.
+        text = text.strip()
+        text = text.replace('\n', ' ')
+        text = re.sub(r'\s+', ' ', text)
+
         doc = nlp(text)
         matches = matcher(doc, as_spans=True)
-        matches.sort(key=lambda span: span.label_)
-        matches = filter(lambda span: not re.match(
-            ', [A-Z]', span.doc[span.end:span.end + 2].text), matches)
-        matches = filter(lambda span: not span.text.startswith('-'), matches)
-        matches = filter(lambda span: 'Comité' not in span.text, matches)
         matches = list(matches)
 
         return matches
