@@ -94,7 +94,6 @@ testdata = [
         ['Parklaan in de wijk Molenvliet', 'Parklaan', 'Molenvliet']
     ),
 
-    # TODO: Review
     (
         """
         Benschop - In één maand tijd is bij drie muziekstudio's ingebroken.
